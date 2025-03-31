@@ -1,0 +1,55 @@
+version: '3.8'
+
+
+services:
+  web1:
+    image: httpd:latest # Usamos la imagen oficial de Apache HTTP Server (httpd)
+    container_name: web1 #nombre del contendor 
+    volumes:
+      - ./web1:/usr/local/apache2/htdocs/ #ruta de la carpeta web1 en la maquina 
+    networks:
+      - mynetwork #conexion a la red mynetwork para exista una comunicacion entre otros 
+  
+  web2:
+    image: httpd:latest
+    container_name: web2
+    volumes:
+      - ./web2:/usr/local/apache2/htdocs/
+    networks:
+      - mynetwork
+
+  web3:
+    image: httpd:latest
+    container_name: web3
+    volumes:
+      - ./web3:/usr/local/apache2/htdocs/
+    networks:
+      - mynetwork
+
+  web4:
+    image: httpd:latest
+    container_name: web4
+    volumes:
+      - ./web4:/usr/local/apache2/htdocs/
+    networks:
+      - mynetwork
+
+
+
+  haproxy:
+    image: haproxy:latest # Usamos la imagen oficial de HAProxy.
+    container_name: haproxy
+    ports:
+      - "8080:80" #exponemos el puerto 80 del contenedor en el puerto 8080
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro #dentro del contenedor (directorio donde Apache busca archivos web).
+    networks:
+      - mynetwork
+    depends_on: #Asegura que los servidores web (web1, web2, web3, web4) se inicien antes que HAProxy
+      - web1
+      - web2
+      - web3
+      - web4
+
+networks: #red de comunicacion 
+  mynetwork: #hace la comunicacion con los servidores 
